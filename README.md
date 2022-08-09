@@ -2,6 +2,10 @@
 
 By Matthew Christopher Albert
 
+## Deployment
+
+- Github Pages - [matthewcalbert.github.io/metapals-frontend-interview-test](https://matthewcalbert.github.io/metapals-frontend-interview-test/)
+
 ## Using
 
 - Vanilla JS
@@ -18,10 +22,6 @@ By Matthew Christopher Albert
 - Change Logo Position (Draggable)
 - Change Logo Font Family and Weight
 - Convert to Canvas
-
-## Deployment
-
-- Github Pages
 
 ## Getting Started
 
