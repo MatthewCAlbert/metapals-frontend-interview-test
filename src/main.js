@@ -39,9 +39,21 @@ function ModalHook(modalContainerElement) {
   return toggle
 }
 
-
 // Hook Modal Form
 const toggleSaveModal = ModalHook(document.querySelector('#save-modal'))
+
+// Font Weight Definition
+const fontWeightDefinition = {
+  'Ultra Thin': 100,
+  'Thin': 200,
+  'Light': 300,
+  'Regular': 400,
+  'Medium': 500,
+  'Semibold': 600,
+  'Bold': 700,
+  'Extrabold': 800,
+  'Black': 900,
+}
 
 // Logo Manager as Singleton
 const LogoManager = (function() {
@@ -49,6 +61,8 @@ const LogoManager = (function() {
     const element = {
       boundaryDraggableArea: document.getElementById('app'),
       colorPaletteContainer: document.getElementById('color-pallete-container'),
+      fontFamilySelectorContainer: document.getElementById('font-family-selector-container'),
+      fontWeightSelectorContainer: document.getElementById('font-weight-selector-container'),
       generatedTextContainer: document.getElementById('generated-text'),
       logoTextInput: document.getElementById('logo-text-input'),
       sizeInput: document.getElementById('size-input'),
@@ -65,20 +79,38 @@ const LogoManager = (function() {
       '#E6E6EA',
       '#F4F4F8'
     ]
+    const fontList = [
+      {
+        family: 'Nunito',
+        weights: [
+          300, 400, 500, 600, 700, 800, 900          
+        ],
+      },
+      {
+        family: 'Caveat',
+        weights: [
+          400, 500, 600, 700,
+        ],
+      },
+    ]
     const initialTranslateYValue = 40 
   
     // State
     const colorSelectorElement = []
+
+    // Initial State
     let state = {
       color: colorPalette[0],
       size: 26,
       text: 'MetaPals Awesome',
+      fontFamily: 'Nunito',
+      fontWeight: 800,
     }
     let summoned = false
 
     // Re-summon / summon logo to container
     function addLogo(props, zigzag = false) {
-      const { text, size, color } = props
+      const { text, size, color, fontFamily, fontWeight } = props
       // Summon
       for (let i = 0 ; i < text.length ; i++) {
         const char = text[i]
@@ -86,13 +118,14 @@ const LogoManager = (function() {
         charItem.innerHTML = char === ' ' ? '&nbsp;' : char
         charItem.style.color = color
         charItem.style.fontSize = `${size}px`
+        charItem.style.fontFamily = fontFamily
+        charItem.style.fontWeight = fontWeight
         charItem.style.opacity = 0
         charItem.style.touchAction = 'none'
         charItem.style.userSelect = 'none'
         charItem.style.cursor = 'grab'
         charItem.style.display = 'inline-block'
         charItem.style.zIndex = '1006'
-        charItem.style.fontWeight = '800'
         let translateYValue = initialTranslateYValue
         if (zigzag) {
           if ( i % 2 === 0 ) translateYValue -= 10
@@ -137,10 +170,12 @@ const LogoManager = (function() {
 
     // Update Logo Style
     function updateLogoStyle(props) {
-      const { size, color } = props
+      const { size, color, fontFamily, fontWeight } = props
       element.charsContainer.querySelectorAll('span').forEach(span => {
         span.style.color = color
         span.style.fontSize = `${size}px`
+        span.style.fontFamily = fontFamily
+        span.style.fontWeight = fontWeight
       })
     }
 
@@ -177,6 +212,47 @@ const LogoManager = (function() {
         if ( color === state.color ) {
           colorPaletteItem.click()
         }
+      }
+    }
+
+    // Insert Font Weight Selector
+    function generateFontWeightSelector(fontFamily) {
+      const family = fontList.find(item => item.family === fontFamily)
+      element.fontWeightSelectorContainer.innerHTML = ''
+      const fontWeightSelector = document.createElement('select')
+      fontWeightSelector.className = 'w-full h-full'
+      element.fontWeightSelectorContainer.appendChild(fontWeightSelector)
+      fontWeightSelector.onchange = (e) => {
+        setState({ fontWeight: e.target.value })
+      }
+      if (family) {
+        family.weights.forEach(weight => {
+          const weightOption = document.createElement('option')
+          weightOption.value = weight
+          weightOption.innerHTML = Object.keys(fontWeightDefinition).find(key => fontWeightDefinition[key] === weight)
+          fontWeightSelector.appendChild(weightOption)
+        })
+        fontWeightSelector.value = family.weights.find((el) => el === state.fontWeight) || family.weights[0]
+        setState({ fontWeight: fontWeightSelector.value })
+      }
+    }
+
+    // Insert Font Selector
+    function generateFontSelector() {
+      const fontFamilySelector = document.createElement('select')
+      fontFamilySelector.className = 'w-full h-full'
+      element.fontFamilySelectorContainer.appendChild(fontFamilySelector)
+      fontList.forEach(family => {
+        const familyOption = document.createElement('option')
+        familyOption.value = family.family
+        familyOption.innerHTML = family.family
+        fontFamilySelector.appendChild(familyOption)
+      })
+      fontFamilySelector.value = state.fontFamily
+      generateFontWeightSelector(state.fontFamily)
+      fontFamilySelector.onchange = (e) => {
+        generateFontWeightSelector(e.target.value)
+        setState({ fontFamily: e.target.value })
       }
     }
 
@@ -222,6 +298,7 @@ const LogoManager = (function() {
     hookLogoTextInput()
     hookSizeInput()
     generateColorSelector()
+    generateFontSelector()
     summonLogo(state)
     hookSaveButton()
   }

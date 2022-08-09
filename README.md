@@ -16,6 +16,7 @@ By Matthew Christopher Albert
 - Change Logo Text
 - Change Logo Color
 - Change Logo Position (Draggable)
+- Change Logo Font Family and Weight
 - Convert to Canvas
 
 ## Deployment
